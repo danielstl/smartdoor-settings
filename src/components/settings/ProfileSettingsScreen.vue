@@ -1,7 +1,9 @@
 <template>
   <div>
     <div id="user-info">
-      <img :src="this.icon"/>
+      <div id="icon-container">
+        <img id="user-icon" :src="this.icon"/>
+      </div>
       <div id="name">{{ this.name }}</div>
       <select id="online-status" v-model="status" @change="statusUpdate">
         <option value="AVAILABLE">Available</option>
@@ -9,13 +11,15 @@
         <option value="AWAY">Away</option>
       </select>
     </div>
-    <div>
-      <form>
-        <label for="input-name">Name</label>
-        <input type="text" id="input-name" v-model="name" @change="nameUpdate" placeholder="Enter your name">
+    <div id="settings-form">
+      <label for="input-name">Name</label>
+      <input type="text" id="input-name" v-model="name" @change="nameUpdate" placeholder="Enter your name">
 
-        <label for="input-status">Status</label>
-        <input type="text" id="input-status" placeholder="Enter a status">
+      <form method="post" action="https://doorlink.xyz/upload/user-icon" enctype="multipart/form-data">
+        <label for="image">Profile picture</label>
+        <input type="file" id="image" name="image">
+        <input type="submit">
+        <button>Remove photo</button>
       </form>
     </div>
   </div>
@@ -34,7 +38,7 @@ export default {
   sockets: {
     user_update: function (res) {
       this.name = res.name;
-      this.icon = res.icon;
+      this.icon = res.profileImage;
       this.status = res.status;
     }
   },
@@ -57,21 +61,29 @@ export default {
 #user-info {
   display: flex;
   height: 5rem;
-  padding: 1em;
+  padding: 0;
   align-items: center;
   font-size: 1.6em;
-}
-
-#user-info > img {
-  border-radius: 50%;
-  max-height: 80%;
 }
 
 #user-info > #name {
   flex: 4;
   font-size: 1.6em;
   font-weight: 500;
-  margin-left: 0.5em;
+  margin-left: 0.3em;
+}
+
+#icon-container {
+  height: 2em;
+  width: 2em;
+}
+
+#user-icon {
+  object-fit: scale-down;
+  background-color: #333;
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
 }
 
 #online-status {
@@ -80,5 +92,10 @@ export default {
 
 #user-info > * {
   vertical-align: center;
+}
+
+#settings-form {
+  display: flex;
+  flex-direction: column;
 }
 </style>

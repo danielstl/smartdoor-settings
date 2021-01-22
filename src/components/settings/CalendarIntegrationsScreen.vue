@@ -21,6 +21,9 @@ export default {
       this.calendarUrl = !update ? null : update.url;
     }
   },
+  mounted() {
+    this.$socket.emit("get_calendar");
+  },
   methods: {
     saveCalendar: function () {
       this.$socket.emit("update_calendar", this.calendarUrl);

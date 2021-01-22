@@ -1,29 +1,29 @@
 <template>
   <div>
     <div id="conversation">
-      <div>Active conversation</div>
+      <h3>Pinned notes</h3>
+      <div>You can pin notes to the home screen of the smart display below</div>
       <ul>
-        <li v-for="message in messages" :key="message.timestamp">
-          <div>{{message.timestamp + ", " + message.selfMessage + ", " + message.content}}</div>
+        <li v-for="note in notes" :key="note.id">
+          <div>{{note}}</div>
         </li>
       </ul>
-      <div id="input">
-        <button>+</button>
-        <input type="text" id="input-message" v-model="currentMessage" @keydown.enter="sendMessage" placeholder="Type a message..."/>
-        <button @click.prevent="sendMessage">Send</button>
-        <button @click.prevent="clearMessages">Clear messages</button>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "MessagingScreen",
+  name: "NotesScreen",
   data() {
     return {
-      messages: [],
-      currentMessage: ""
+      notes: [
+        {
+          id: 1,
+          text: "text note",
+          image: null
+        }
+      ]
     }
   },
   sockets: {

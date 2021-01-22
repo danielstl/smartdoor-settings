@@ -1,20 +1,26 @@
 <template>
   <div id="root">
     <header>
-      <h2>Smart Display Management</h2>
+      <h2>DoorLink Display Management</h2>
     </header>
-    <aside>
-      <nav>
-        <ul>
-          <li v-for="c in this.$router.options.routes" :key="c.path">
-            <router-link :to="c.path">{{c.name}}</router-link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <main>
-      <router-view></router-view>
-    </main>
+    <div id="content">
+      <aside>
+        <nav>
+          <ul>
+            <li v-for="c in this.$router.options.routes" :key="c.path">
+              <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span class="link-name">{{
+                  c.name
+                }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+      <main>
+        <!--<div id="current-route"> {{ this.$router.currentRoute.name }}</div>-->
+        <router-view></router-view>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -42,20 +48,63 @@ body, html {
 
 header {
   display: flex;
-  height: 4em;
-  background: blue;
+  background: #1d1d1d;
+
+  color: white;
+  padding: 0.2em 1.6em;
+}
+
+.menu-link > .material-icons {
+  padding-right: 0.3em;
+}
+
+#current-route {
+  font-size: x-large;
+  font-weight: 500;
 }
 
 aside {
-  background: orange;
+  background: #efefef;
+
+  width: 18em;
 }
 
 main {
-  background: purple;
+  background: #f8f8f8;
+
+  flex: 1 1 auto;
+
+  padding: 1em;
 }
 
 header > div {
   flex: 1;
+}
+
+#root {
+  display: flex;
+  height: 100%;
+
+  flex-direction: column;
+}
+
+@media screen and (max-width: 600px) {
+  #content {
+    flex-direction: column;
+  }
+
+  aside {
+    width: 100%;
+  }
+}
+
+#root > div {
+  flex: 0 1 auto;
+}
+
+#content {
+  display: flex;
+  height: 100%;
 }
 
 #root {
@@ -64,9 +113,52 @@ header > div {
   height: 100%;
 }
 
+nav > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-link {
+  display: block;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 0.8em;
+  color: black;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.menu-link:hover {
+  background: #e0e0e0;
+}
+
+.menu-link.router-link-active {
+  background: #d6d6d6;
+}
+
+.material-icons {
+  vertical-align: -6px;
+}
+
 .selected-item > span {
   border-top: 3px solid #6c6cff;
   transform: scale(1.8, 1.8);
   color: white;
+}
+
+input[type=text], select, button, input[type=file] {
+  background-color: white;
+  border: 1px solid #333;
+  border-radius: 2px;
+  padding: 0.4em;
+  font-family: "Roboto", "Segoe UI", "sans-serif";
+}
+
+input, select, button :active {
+  outline: none;
+}
+
+label {
+  padding: 0.4em 0;
 }
 </style>

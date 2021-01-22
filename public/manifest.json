@@ -1,8 +1,8 @@
 {
-  "short_name": "Smart Door",
-  "name": "Smart Door Display",
-  "start_url": "/index.html",
+  "short_name": "DoorLink Settings",
+  "name": "DoorLink Settings",
+  "start_url": "https://doorlink.xyz/manage/",
   "background_color": "#000000",
-  "display": "fullscreen",
+  "display": "standalone",
   "theme_color": "#ffff00"
 }
