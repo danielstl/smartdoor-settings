@@ -1,7 +1,9 @@
 <template>
-  <div>
+  <div id="calendar-root">
+    <h3>Calendar integrations</h3>
     <div>You can link your calendar by providing an iCalendar link</div>
-    <input type="text" v-model="calendarUrl" placeholder="webcal://calendar.ics">
+    <label for="calendar-url">Calendar URL</label>
+    <input type="text" id="calendar-url" v-model="calendarUrl" placeholder="webcal://calendar.ics">
     <button @click="saveCalendar">
       Save calendar
     </button>
@@ -26,12 +28,19 @@ export default {
   },
   methods: {
     saveCalendar: function () {
-      this.$socket.emit("update_calendar", this.calendarUrl);
+      this.$socket.emit("update_calendar", this.calendarUrl.replaceAll("webcal://", "http://"));
     }
   }
 }
 </script>
 
 <style scoped>
+#calendar-root {
+  display: flex;
+  flex-direction: column;
+}
 
+#calendar-root > * {
+  flex: 1;
+}
 </style>

@@ -3,13 +3,14 @@ import Screen from "@/components/Screen";
 import VueSocketio from "vue-socket.io";
 import SocketIO from "socket.io-client";
 import VueRouter from "vue-router";
-import DateTime from "@/components/DateTime";
+
 import ProfileSettingsScreen from "@/components/settings/ProfileSettingsScreen";
 import CustomiseSettingsScreen from "@/components/settings/CustomiseSettingsScreen";
 import CalendarIntegrationsScreen from "@/components/settings/CalendarIntegrationsScreen";
 import MessagingScreen from "@/components/settings/MessagingScreen";
 import IntercomScreen from "@/components/settings/IntercomScreen";
 import NotesScreen from "@/components/settings/NotesScreen";
+import DeviceSettingsScreen from "@/components/settings/DeviceSettingsScreen";
 
 Vue.config.productionTip = false;
 
@@ -35,9 +36,11 @@ const router = new VueRouter({
         {path: '/messaging', component: MessagingScreen, name: "Messaging", meta: {icon: "chat"}},
         {path: '/notes', component: NotesScreen, name: "Notes", meta: {icon: "push_pin"}},
         {path: '/intercom', component: IntercomScreen, name: "Intercom", meta: {icon: "videocam"}},
-        {path: '/device', component: DateTime, name: "Device", meta: {icon: "tablet"}},
+        {path: '/device', component: DeviceSettingsScreen, name: "Device", meta: {icon: "tablet"}},
     ]
 });
+
+Vue.prototype.$global = {};
 
 new Vue({
     render: h => h(Screen),

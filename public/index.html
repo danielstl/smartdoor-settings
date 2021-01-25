@@ -9,6 +9,30 @@
     <link rel="manifest" href="manifest.json"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+        async function registerServiceWorker() {
+            return await navigator.serviceWorker.register("/manage/service.js");
+        }
+
+        async function checkNotificationPermission() {
+            return await window.Notification.requestPermission() === "granted";
+        }
+
+        async function runServiceWorker() {
+
+            let sw = await registerServiceWorker();
+            let notifPerm = await checkNotificationPermission();
+
+            if (!notifPerm) {
+                return; //don't have permission to show notifications
+            }
+
+            await sw.showNotification("DoorLink", {body: "Incoming intercom call", action: [{name: "answer", title: "Answer"}, {name: "ignore", title: "Ignore"}], requireInteraction: true, icon: "https://doorlink.xyz/manage/favicon.ico"})
+        }
+
+        runServiceWorker();
+
+    </script>
 </head>
 <body>
 <noscript>

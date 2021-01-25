@@ -1,5 +1,6 @@
 <template>
   <div id="root">
+    <RegistrationScreen v-if="false"/>
     <header>
       <h2>DoorLink Display Management</h2>
     </header>
@@ -8,7 +9,8 @@
         <nav>
           <ul>
             <li v-for="c in this.$router.options.routes" :key="c.path">
-              <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span class="link-name">{{
+              <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span
+                  class="link-name">{{
                   c.name
                 }}</span>
               </router-link>
@@ -28,11 +30,36 @@
 //import MainScreen from "@/components/settings/MainScreen";
 //import DateTime from "@/components/DateTime";
 
+import RegistrationScreen from "@/components/registration/RegistrationScreen";
+
 export default {
   name: "Screen",
+  components: {RegistrationScreen},
   //components: {DateTime},
   data() {
     return {}
+  },
+  sockets: {
+    room_joined: function (code) {
+      this.saveRoomCode(code);
+    },
+    room_id: function (code) {
+      this.saveRoomCode(code);
+    }
+  },
+  methods: {
+    saveRoomCode(code) {
+      this.$global.roomId = code;
+      localStorage.roomCode = code;
+    }
+  },
+  beforeMount() {
+    if (!localStorage.roomCode && localStorage.roomCode) {
+      //TODO!!!!
+      this.$socket.emit("join_room", localStorage.roomCode);
+    } else {
+      this.$socket.emit("temp_join");
+    }
   }
 }
 </script>
@@ -146,11 +173,12 @@ nav > ul {
   color: white;
 }
 
-input[type=text], select, button, input[type=file] {
+input[type=text], select, button, input[type=submit], input[type="file"]::-webkit-file-upload-button {
   background-color: white;
   border: 1px solid #333;
   border-radius: 2px;
   padding: 0.4em;
+  color: black;
   font-family: "Roboto", "Segoe UI", "sans-serif";
 }
 
