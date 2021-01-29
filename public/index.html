@@ -27,7 +27,7 @@
                 return; //don't have permission to show notifications
             }
 
-            await sw.showNotification("DoorLink", {body: "Incoming intercom call", action: [{name: "answer", title: "Answer"}, {name: "ignore", title: "Ignore"}], requireInteraction: true, icon: "https://doorlink.xyz/manage/favicon.ico"})
+            //await sw.showNotification("DoorLink", {body: "Incoming intercom call", action: [{name: "answer", title: "Answer"}, {name: "ignore", title: "Ignore"}], requireInteraction: true, icon: "https://doorlink.xyz/manage/favicon.ico"})
         }
 
         runServiceWorker();

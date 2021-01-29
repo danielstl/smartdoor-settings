@@ -1,30 +1,40 @@
 <template>
-  <div>
+  <div id="messaging-root">
+    <h3>Messaging</h3>
+    <div>Active conversation</div>
     <div id="conversation">
-      <div>Active conversation</div>
-      <ul>
-        <li v-for="message in messages" :key="message.timestamp">
-          <div>{{message.timestamp + ", " + message.selfMessage + ", " + message.content}}</div>
-        </li>
-      </ul>
-      <div id="input">
-        <button>+</button>
-        <input type="text" id="input-message" v-model="currentMessage" @keydown.enter="sendMessage" placeholder="Type a message..."/>
-        <button @click.prevent="sendMessage">Send</button>
-        <button @click.prevent="clearMessages">Clear messages</button>
+      <div id="messages-container">
+        <ul id="messages">
+          <li v-for="message in messages" :key="message.timestamp">
+            <ChatMessage :message="message"/>
+          </li>
+        </ul>
       </div>
+    </div>
+    <div id="input">
+      <input id="message-box" autocomplete="off" type="text" @keydown.enter="sendMessage" :value="this.currentMessage"  @input="m => this.currentMessage = m.target.value" placeholder="Type a message...">
+      <button @click.prevent="sendMessage">Send</button>
+      <button @click.prevent="clearMessages">Clear messages</button>
     </div>
   </div>
 </template>
 
 <script>
+import ChatMessage from "@/components/settings/ChatMessage";
+import Vue from "vue";
+
 export default {
   name: "MessagingScreen",
+  components: {ChatMessage},
   data() {
     return {
       messages: [],
-      currentMessage: ""
+      currentMessage: "" //TODO add 'unread' position
     }
+  },
+  beforeMount() {
+    this.messages = this.$global.messages.slice();
+    this.$global.messages = [];
   },
   sockets: {
     new_message: function (messageData) {
@@ -34,9 +44,23 @@ export default {
       this.messages = [];
     }
   },
+  watch: {
+    messages: {
+      handler() {
+        Vue.nextTick().then(() => {
+          let box = document.getElementById("conversation");
+          box.scrollTop = box.scrollHeight; //scroll to bottom
+        });
+      }
+    }
+  },
   methods: {
     sendMessage: function () {
-      this.$socket.emit("send_message", {timestamp: new Date().getUTCMilliseconds(), content: this.currentMessage, selfMessage: true});
+      if (this.currentMessage === "") {
+        return;
+      }
+
+      this.$socket.emit("send_message", this.currentMessage);
       this.currentMessage = "";
     },
     clearMessages: function () {
@@ -47,5 +71,53 @@ export default {
 </script>
 
 <style scoped>
+#messaging-root {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  max-height: 100%;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+}
 
+#conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: auto;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li:not(:last-child) {
+  border-bottom: 1px solid #e2e2e2;
+}
+
+#messages {
+  flex: 1;
+
+  overflow: auto;
+}
+
+#message-box {
+  font-family: "Roboto", "Segoe UI", "sans-serif";
+  padding: 0.8em;
+  border: 1px solid #a0a0a0;
+  border-radius: 2px;
+  outline: none;
+
+  flex: 1;
+}
+
+#input {
+  display: flex;
+
+  gap: 0.2em;
+}
 </style>

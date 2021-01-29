@@ -1,23 +1,22 @@
 <template>
   <div id="root">
-    <RegistrationScreen v-if="false"/>
+    <Notification/>
+    <RegistrationScreen v-if="true"/>
     <header>
-      <h2>DoorLink Display Management</h2>
+      <h2>DoorLink Management</h2>
     </header>
     <div id="content">
-      <aside>
-        <nav>
-          <ul>
-            <li v-for="c in this.$router.options.routes" :key="c.path">
-              <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span
-                  class="link-name">{{
-                  c.name
-                }}</span>
-              </router-link>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+      <nav>
+        <ul>
+          <li v-for="c in this.$router.options.routes" :key="c.path">
+            <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span
+                class="link-name">{{
+                c.name
+              }}</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
       <main>
         <!--<div id="current-route"> {{ this.$router.currentRoute.name }}</div>-->
         <router-view></router-view>
@@ -31,10 +30,11 @@
 //import DateTime from "@/components/DateTime";
 
 import RegistrationScreen from "@/components/registration/RegistrationScreen";
+import Notification from "@/components/Notification";
 
 export default {
   name: "Screen",
-  components: {RegistrationScreen},
+  components: {Notification, RegistrationScreen},
   //components: {DateTime},
   data() {
     return {}
@@ -45,6 +45,37 @@ export default {
     },
     room_id: function (code) {
       this.saveRoomCode(code);
+    },
+    new_device_joined: function () {
+      this.$global.pushNotification(
+          {
+            header: "New device",
+            caption: "A new device has been paired"
+          }
+      );
+    },
+    new_message: function (messageData) {
+      if (this.$router.currentRoute.name === "Messaging") {
+        return;
+      }
+
+      this.$global.messages.push(messageData);
+
+      if (!messageData.fromSystem && messageData.fromSystem) { //TODO re-add
+        return;
+      }
+
+      const ctx = this;
+
+      this.$global.pushNotification(
+          {
+            header: "New message",
+            caption: messageData.content,
+            clickHandler: function () {
+              ctx.$router.push("/messaging");
+            }
+          }
+      );
     }
   },
   methods: {
@@ -71,6 +102,8 @@ body, html {
   left: 0;
   height: 100%;
   --user-select: none;
+
+  background: #f8f8f8;
 }
 
 header {
@@ -90,18 +123,18 @@ header {
   font-weight: 500;
 }
 
-aside {
+nav {
   background: #efefef;
 
-  width: 18em;
+  width: 100%;
 }
 
 main {
-  background: #f8f8f8;
-
   flex: 1 1 auto;
 
   padding: 1em;
+
+  overflow: auto;
 }
 
 header > div {
@@ -115,23 +148,31 @@ header > div {
   flex-direction: column;
 }
 
-@media screen and (max-width: 600px) {
+#content {
+  display: flex;
+
+  flex-direction: column;
+}
+
+@media screen and (min-width: 600px) {
   #content {
-    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+
+    flex-direction: row;
   }
 
-  aside {
-    width: 100%;
+  nav {
+    width: 18em;
+    min-width: 18em;
+
+    overflow: auto;
   }
 }
 
 #root > div {
   flex: 0 1 auto;
-}
-
-#content {
-  display: flex;
-  height: 100%;
 }
 
 #root {

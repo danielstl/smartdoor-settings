@@ -17,7 +17,7 @@
       <input type="text" id="input-name" v-model="name" @change="nameUpdate" placeholder="Enter your name">
 
       <label for="image">Profile picture</label>
-      <input type="file" id="image">
+      <input type="file" id="image" accept="image/*">
 
       <button @click="uploadPhoto">Upload photo</button>
       <button @click="removePhoto">Remove photo</button>

@@ -4,39 +4,78 @@
       <div id="modal-header">Create new note</div>
       <div id="note-container">
         <div id="note-type">
-          <button>Text</button>
-          <button>Drawing</button>
-          <button>Image</button>
+          <button @click="addImage">Add image</button>
         </div>
         <div id="note">
-          <textarea id="note-text-input" v-model="note.text" placeholder="Enter your note here..."></textarea>
+          <DynamicImage v-if="note.image" :src="note.image" alt="Note image"></DynamicImage>
+          <div id="uploading-note" v-if="uploading">Image uploading</div>
+          <textarea id="note-text-input" v-model="note.text" placeholder="Enter your note here..."
+                    oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
         </div>
       </div>
     </div>
     <div id="save-options">
-      <button @click="save">Save</button>
+      <button :disabled="this.uploading" @click="save">Save</button>
       <button @click="cancel">Cancel</button>
     </div>
   </div>
 </template>
 
 <script>
+import DynamicImage from "@/components/DynamicImage";
 export default {
   name: "CreateNoteScreen",
+  components: {DynamicImage},
   data() {
     return {
       note: {
         text: "",
         image: null
-      }
+      },
+      uploading: false
     }
   },
   methods: {
-    save: function () {
+    save() {
+      if (this.note.text === "" && this.note.image === null) {
+        this.cancel();
+        return;
+      }
+
       this.$emit("save", this.note);
     },
-    cancel: function () {
-      this.$emit("cancel")
+    cancel() {
+      this.$emit("cancel");
+    },
+    addImage() {
+      let dlg = document.createElement("input");
+      dlg.type = "file";
+      dlg.accept = "image/*";
+
+      dlg.onchange = ev => {
+        if (ev.target.files.length === 0) {
+          return;
+        }
+
+        let data = new FormData();
+
+        data.append("image", ev.target.files[0]);
+
+        this.uploading = true;
+
+        fetch("https://doorlink.xyz/upload/note-image/" + this.$global.roomId, {
+          method: "POST",
+          body: data
+        })
+            .then(res => res.json())
+            .then(res => this.note.image = res.url)
+            .catch(ex => alert("Error uploading file: " + ex.message))
+            .finally(() => this.uploading = false);
+
+        //alert(file);
+      };
+
+      dlg.click();
     }
   }
 }
@@ -57,6 +96,8 @@ export default {
 
   flex-direction: column;
   align-items: center;
+
+  overflow-y: auto;
 }
 
 #modal-main-content {
@@ -108,11 +149,21 @@ export default {
 
 #note {
   background-color: yellow;
-  width: 80vw;
-  height: 80vw;
-  max-width: 650px;
-  max-height: 650px;
   border-radius: 2px;
+
+  height: auto;
+
+  padding: 0.4em;
+}
+
+#note > textarea {
+  height: 100%;
+}
+
+#note > img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 #note-text-input {
@@ -136,5 +187,26 @@ export default {
 #save-options > button {
   flex: 1;
   height: 35px;
+}
+
+@keyframes uploading-pulse {
+  0% {
+    opacity: 40%;
+  }
+
+  50% {
+    opacity: 100%;
+  }
+
+  100% {
+    opacity: 40%;
+  }
+}
+
+#uploading-note {
+  text-align: center;
+  margin-bottom: 0.5em;
+
+  animation: uploading-pulse 1.25s infinite;
 }
 </style>

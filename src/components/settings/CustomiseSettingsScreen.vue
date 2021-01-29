@@ -6,7 +6,7 @@
         <div>You can customise the background image for the display</div>
         <form method="post" action="https://doorlink.xyz/upload/background-image" enctype="multipart/form-data">
           <img src="aaa"/>
-          <input type="file" id="image" name="image"/>
+          <input type="file" id="image" name="image" accept="image/*"/>
           <input type="submit">
           <button>Remove photo</button>
         </form>

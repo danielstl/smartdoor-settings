@@ -40,7 +40,9 @@ const router = new VueRouter({
     ]
 });
 
-Vue.prototype.$global = {};
+Vue.prototype.$global = {
+    messages: []
+};
 
 new Vue({
     render: h => h(Screen),
