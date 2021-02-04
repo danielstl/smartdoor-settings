@@ -46,14 +46,14 @@ export default {
     this.$socket.emit("get_user");
   },
   methods: {
-    statusUpdate: function (ev) {
+    statusUpdate(ev) {
       console.log("UPDATE:" + ev.target.value);
       this.$socket.emit("update_status", ev.target.value);
     },
-    nameUpdate: function (ev) {
+    nameUpdate(ev) {
       this.$socket.emit("update_name", ev.target.value);
     },
-    uploadPhoto: function () {
+    uploadPhoto() {
       let elem = document.getElementById("image");
 
       console.log(elem);
@@ -75,7 +75,7 @@ export default {
 
       elem.value = "";
     },
-    removePhoto: function() {
+    removePhoto() {
       this.$socket.emit("remove_profile_picture");
     }
   }

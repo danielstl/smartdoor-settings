@@ -1,8 +1,17 @@
 <template>
   <div id="intercom-root">
     <Modal v-if="false"/>
-    <h1>Intercom</h1>
-    <div id="cam-containers">
+    <h3>Intercom</h3>
+    <div class="context">When a user uses the Intercom feature on the display, incoming call requests will be displayed here.</div>
+    <div id="call-request">
+      <span class="material-icons">phone</span>
+      <div id="call-request-title">Incoming call</div>
+      <div id="call-responses">
+        <button @click="acceptCall">Accept</button>
+        <button @click="declineCall">Decline</button>
+      </div>
+    </div>
+    <div id="cam-containers" v-if="callInProgress">
       <div id="received-camera">
         <video autoplay id="received-cam-feed">
 
@@ -24,10 +33,14 @@ import Modal from "@/components/Modal";
 export default {
   name: "IntercomScreen",
   components: {Modal},
+  data() {
+    return {
+      callInProgress: false,
+      incomingCallSdp: null
+    }
+  },
   async mounted() {
     const config = {iceServers: [{urls: "stun:stun.l.google.com:19305"}]};
-
-    console.log("11");
 
     this.rtc = new RTCPeerConnection(config);
 
@@ -51,12 +64,8 @@ export default {
         await this.rtc.addIceCandidate(new RTCIceCandidate(data.candidate));
 
       } else if (data.message === "sdp") {
-        await this.rtc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        this.incomingCallSdp = data.sdp;
 
-        let answer = await this.rtc.createAnswer();
-        await this.rtc.setLocalDescription(answer);
-
-        this.$socket.emit("intercom_call_signalling", {message: "sdp_remote", sdp: answer})
       } else if (data.message === "sdp_remote") {
         await this.rtc.setRemoteDescription(new RTCSessionDescription(data.sdp));
       }
@@ -70,6 +79,19 @@ export default {
       await this.rtc.setLocalDescription(this.description);
 
       this.$socket.emit("start_intercom_call", this.description);
+    },
+    async acceptCall() {
+      await this.rtc.setRemoteDescription(new RTCSessionDescription(this.incomingCallSdp.sdp));
+
+      let answer = await this.rtc.createAnswer();
+      await this.rtc.setLocalDescription(answer);
+
+      this.$socket.emit("intercom_call_signalling", {message: "sdp_remote", sdp: answer})
+    },
+    declineCall() {
+      this.incomingCallSdp = null;
+
+      //TODO emit call declined
     },
     attachMediaStream(stream) {
       let camFeed = document.getElementById("received-cam-feed");
@@ -109,11 +131,6 @@ video {
   height: 100%;
 }
 
-#intercom-root {
-  width: 100%;
-  height: 100%;
-}
-
 #cam-containers {
   display: flex;
   height: 100%;
@@ -124,5 +141,18 @@ video {
 #cam-containers > div {
   width: 100%;
   height: 100%;
+}
+
+#call-request {
+  background-color: green;
+  border-radius: 2px;
+  display: flex;
+  padding: 0.3em;
+
+  max-width: 450px;
+}
+
+#call-request-title {
+  flex: 1;
 }
 </style>

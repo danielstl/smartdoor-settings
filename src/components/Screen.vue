@@ -1,7 +1,7 @@
 <template>
   <div id="root">
     <Notification/>
-    <RegistrationScreen v-if="true"/>
+    <RegistrationScreen v-if="false"/>
     <header>
       <h2>DoorLink Management</h2>
     </header>
@@ -229,5 +229,19 @@ input, select, button :active {
 
 label {
   padding: 0.4em 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+.context {
+  border-left: 3px solid #888888;
+  padding-left: 0.4em;
+  color: #323232;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  font-weight: 500;
 }
 </style>

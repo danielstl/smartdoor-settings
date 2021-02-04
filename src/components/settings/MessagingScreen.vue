@@ -1,7 +1,7 @@
 <template>
   <div id="messaging-root">
     <h3>Messaging</h3>
-    <div>Active conversation</div>
+    <div class="context">Active conversation</div>
     <div id="conversation">
       <div id="messages-container">
         <ul id="messages">

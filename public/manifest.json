@@ -4,5 +4,29 @@
   "start_url": "https://doorlink.xyz/manage/",
   "background_color": "#1d1d1d",
   "display": "standalone",
-  "theme_color": "#ffff00"
+  "theme_color": "#ffff00",
+  "icons": [
+    {
+      "src": "icons/512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Profile",
+      "url": "/manage/profile",
+      "description": "Manage profile settings"
+    }
+  ]
 }

@@ -2,7 +2,7 @@
   <div id="device-root">
     <h3>Device</h3>
     <h4>Door ID</h4>
-    <div>Use this to pair a new display. At any time, you can reset the Door ID, which will disconnect all connected
+    <div class="context">Use this to pair a new display. At any time, you can reset the Door ID, which will disconnect all connected
       displays.
     </div>
     <template v-if="!retrievedRoomId">

@@ -1,7 +1,7 @@
 <template>
   <div id="calendar-root">
     <h3>Calendar integrations</h3>
-    <div>You can link your calendars by providing iCalendar links</div>
+    <div class="context">You can link your calendars by providing iCalendar links</div>
     <h4>Calendars</h4>
     <div id="calendars">
       <div class="calendar" v-for="(cal, ix) in calendars" :key="ix">
@@ -99,11 +99,6 @@ export default {
 </script>
 
 <style scoped>
-#calendar-root {
-  display: flex;
-  flex-direction: column;
-}
-
 #save-options {
   margin-top: 0.8em;
   gap: 0.2em;
