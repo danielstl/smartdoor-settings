@@ -54,6 +54,23 @@ export default {
           }
       );
     },
+    doodles_update: function (doodles) {
+      if (this.$router.currentRoute.name === "Doodles" || (!doodles || doodles.length === 0)) {
+        return;
+      }
+
+      const ctx = this;
+
+      this.$global.pushNotification(
+          {
+            header: "New doodle",
+            caption: "A new doodle has been received",
+            clickHandler: function () {
+              ctx.$router.push("/doodles");
+            }
+          }
+      );
+    },
     new_message: function (messageData) {
       if (this.$router.currentRoute.name === "Messaging") {
         return;

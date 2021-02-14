@@ -11,6 +11,7 @@ import MessagingScreen from "@/components/settings/MessagingScreen";
 import IntercomScreen from "@/components/settings/IntercomScreen";
 import NotesScreen from "@/components/settings/NotesScreen";
 import DeviceSettingsScreen from "@/components/settings/DeviceSettingsScreen";
+import WhiteboardScreen from "@/components/settings/WhiteboardScreen";
 
 Vue.config.productionTip = false;
 
@@ -35,6 +36,7 @@ const router = new VueRouter({
         },
         {path: '/messaging', component: MessagingScreen, name: "Messaging", meta: {icon: "chat"}},
         {path: '/notes', component: NotesScreen, name: "Notes", meta: {icon: "push_pin"}},
+        {path: '/doodles', component: WhiteboardScreen, name: "Doodles", meta: {icon: "gesture"}},
         {path: '/intercom', component: IntercomScreen, name: "Intercom", meta: {icon: "videocam"}},
         {path: '/device', component: DeviceSettingsScreen, name: "Device", meta: {icon: "tablet"}},
     ]

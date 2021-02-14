@@ -2,7 +2,7 @@
   <div>
     <div id="notes">
       <h3>Notes</h3>
-      <div class="context">You can pin notes to the home screen of the smart display below</div>
+      <div class="context">You can pin notes to the home screen of the smart display below.</div>
       <CreateNoteScreen v-if="creatingNote" @save="saveNote" @cancel="cancelNote"/>
       <div id="notes-list">
         <div v-for="(note, ix) in notes" :key="ix">

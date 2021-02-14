@@ -1,6 +1,7 @@
 <template>
   <div>
     <h3>Profile</h3>
+    <div class="context">You can adjust how your profile appears on the display.</div>
     <div id="user-info">
       <div id="icon-container">
         <img id="user-icon" :src="this.icon"/>

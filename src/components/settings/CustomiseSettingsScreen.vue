@@ -2,7 +2,7 @@
   <div>
     <div id="customise-root">
       <h3>Customise</h3>
-      <div class="context">You can customise elements of your display below</div>
+      <div class="context">You can customise elements of your display below.</div>
       <div id="wallpaper">
         <h4>Wallpaper</h4>
         <div id="settings-form">
@@ -22,7 +22,7 @@
       </div>
       <div id="widgets">
         <h4>Widgets</h4>
-        <div class="context widget-help">Drag and drop the widget types below to adjust their order on the display</div>
+        <div class="context widget-help">Drag and drop the widget types below to adjust their order on the display.</div>
         <div>Selected</div>
         <div class="widgets-container">
           <div :class="{'widget': true, 'available': !widget}" :draggable="widget"
