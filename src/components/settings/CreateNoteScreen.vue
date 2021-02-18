@@ -5,8 +5,10 @@
       <div id="note-container">
         <div id="note-type">
           <button @click="addImage">Add image</button>
+          <button @click="addDoodle">Add doodle</button>
         </div>
         <div id="note">
+          <NoteDoodleWhiteboard ref="doodle" @doodle-complete="doodleUploadComplete" v-if="creatingDoodle && !note.image && !uploading"/>
           <DynamicImage v-if="note.image" :src="note.image" alt="Note image"></DynamicImage>
           <div id="uploading-note" v-if="uploading">Image uploading</div>
           <textarea id="note-text-input" v-model="note.text" placeholder="Enter your note here..."
@@ -23,20 +25,27 @@
 
 <script>
 import DynamicImage from "@/components/DynamicImage";
+import NoteDoodleWhiteboard from "@/components/settings/NoteDoodleWhiteboard";
 export default {
   name: "CreateNoteScreen",
-  components: {DynamicImage},
+  components: {NoteDoodleWhiteboard, DynamicImage},
   data() {
     return {
       note: {
         text: "",
         image: null
       },
+      creatingDoodle: false,
       uploading: false
     }
   },
   methods: {
     save() {
+      if (this.creatingDoodle) {
+        this.$refs.doodle.send();
+        return;
+      }
+
       if (this.note.text === "" && this.note.image === null) {
         this.cancel();
         return;
@@ -46,6 +55,11 @@ export default {
     },
     cancel() {
       this.$emit("cancel");
+    },
+    doodleUploadComplete(url) {
+      this.creatingDoodle = false;
+      this.note.image = url;
+      this.save();
     },
     addImage() {
       let dlg = document.createElement("input");
@@ -76,6 +90,10 @@ export default {
       };
 
       dlg.click();
+    },
+    addDoodle() {
+      this.note.image = null;
+      this.creatingDoodle = true;
     }
   }
 }
@@ -205,6 +223,7 @@ export default {
 
 #uploading-note {
   text-align: center;
+  margin-top: 0.5em;
   margin-bottom: 0.5em;
 
   animation: uploading-pulse 1.25s infinite;

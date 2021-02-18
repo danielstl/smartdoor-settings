@@ -13,16 +13,23 @@
         <button @click="declineCall">Decline</button>
       </div>
     </div>
-    <div id="cam-containers" v-show="callInProgress">
-      <div id="received-camera">
-        <video autoplay id="received-cam-feed">
+    <div id="call" v-show="callInProgress">
+      <div id="cam-containers">
+        <div id="received-camera">
+          <video autoplay id="received-cam-feed" class="widget-base">
 
-        </video>
+          </video>
+          <div id="self-camera">
+            <video autoplay muted id="cam-feed" class="widget-base">
+
+            </video>
+          </div>
+        </div>
       </div>
-      <div id="self-camera">
-        <video autoplay muted id="cam-feed">
-
-        </video>
+      <div id="call-controls" v-if="callInProgress">
+        <button id="end-call-button" @click="endCall">End call</button>
+        <button id="fullscreen-button" @click="enterFullscreen">{{ fullscreen ? "Exit fullscreen" : "Fullscreen" }}
+        </button>
       </div>
     </div>
   </div>
@@ -37,7 +44,8 @@ export default {
   data() {
     return {
       callInProgress: false,
-      callRequestId: null
+      callRequestId: null,
+      fullscreen: false
     }
   },
   async mounted() {
@@ -112,10 +120,17 @@ export default {
     endCall() {
       this.rtc.close();
 
-      this.$socket.emit("end_intercom_call", this.callRequestId);
+      if (this.callInProgress) {
+        this.$socket.emit("end_intercom_call", this.callRequestId);
 
-      this.callInProgress = false;
-      this.callRequestId = null;
+        this.callInProgress = false;
+        this.callRequestId = null;
+
+        this.$global.pushNotification({
+          header: "Intercom",
+          caption: "Call has been ended"
+        });
+      }
 
       document.getElementById("cam-feed").srcObject = null;
       document.getElementById("received-cam-feed").srcObject = null;
@@ -130,7 +145,11 @@ export default {
 
       if (event.candidate !== undefined) {
         console.log("emitting candidate", this);
-        this.$socket.emit("intercom_call_signalling", {id: this.callRequestId, message: "candidate", candidate: event.candidate});
+        this.$socket.emit("intercom_call_signalling", {
+          id: this.callRequestId,
+          message: "candidate",
+          candidate: event.candidate
+        });
       }
     },
     onAddStream(event) {
@@ -140,44 +159,67 @@ export default {
       this.attachMediaStream(event.stream);
 
       this.callInProgress = true;
-
-      document.getElementById("cam-containers").requestFullscreen({navigationUI: "hide"});
+      //document.getElementById("cam-containers").requestFullscreen({navigationUI: "hide"});
+    },
+    enterFullscreen() {
+      if (document.fullscreenElement !== null) {
+        document.exitFullscreen();
+        this.fullscreen = false;
+      } else {
+        document.getElementById("call").requestFullscreen({navigationUI: "hide"});
+        this.fullscreen = true;
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-#received-cam-feed {
-  background: red;
-  flex: 2;
-}
-
-#cam-feed {
-  background: blue;
-  flex: 1;
+#self-camera {
+  position: absolute;
+  display: inline-block;
+  width: 30vw;
+  height: 16.125vw;
+  right: 1em;
+  bottom: 1em;
 }
 
 video {
+  background-color: #292929;
+  border-radius: 8px;
+}
+
+#self-camera video {
+  border: 2px solid white;
+}
+
+#received-camera {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  flex: 1;
+}
+
+#received-camera video {
   width: 100%;
   height: 100%;
 }
 
 #cam-containers {
-  display: flex;
   height: 100%;
-  width: 100%;
-  flex-direction: column;
-  gap: 0.2em;
+  max-width: 100%;
+  max-height: 100%;
+  flex: 1;
+  overflow: auto;
 }
 
-#cam-containers > div {
+#call {
   height: 100%;
-
-  border-radius: 8px;
-  overflow: hidden;
-
-  margin: 0.8em;
+  display: flex;
+  flex-direction: column;
 }
 
 #call-request {
@@ -186,10 +228,41 @@ video {
   display: flex;
   padding: 0.3em;
 
+  color: white;
+  align-items: center;
+
   max-width: 450px;
+}
+
+#call-responses {
+  display: flex;
+  gap: 0.2em;
 }
 
 #call-request-title {
   flex: 1;
+  margin-left: 0.5em;
 }
+
+#call-controls {
+  display: flex;
+  gap: 0.2em;
+}
+
+#call-controls > button {
+  flex: 1;
+  padding: 1em;
+}
+
+/*#end-call-button {
+  padding: 0.4em;
+  background-color: #ff1e1e;
+  color: white;
+  font-weight: 600;
+  font-size: large;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+}*/
+
 </style>

@@ -31,9 +31,9 @@ export default {
   name: "ProfileSettingsScreen",
   data() {
     return {
-      name: "???",
+      name: "",
       icon: null,
-      status: "DO_NOT_DISTURB"
+      status: ""
     }
   },
   sockets: {

@@ -1,10 +1,16 @@
 <template>
   <div id="calendar-root">
     <h3>Calendar integrations</h3>
-    <div class="context">You can link your calendars by providing iCalendar links.</div>
+    <div class="context">
+      You can link your calendars by providing iCalendar links.<br>
+      <ul id="pre-calendar-list">
+        <li v-for="ca in predefinedCalendars" :key="ca.name"><a :href="ca.link" target="_blank">{{ca.name}}</a></li>
+      </ul>
+    </div>
     <h4>Calendars</h4>
     <div id="calendars">
-      <div class="calendar" v-for="(cal, ix) in calendars" :key="ix">
+      <div v-if="loading">Loading...</div>
+      <div v-else class="calendar" v-for="(cal, ix) in calendars" :key="ix">
         <label :for="'calendar-url-' + ix">URL</label>
         <input type="text" :id="'calendar-url-' + ix" v-model="cal.url" placeholder="http://calendar.ics">
         <label :for="'calendar-colour-' + ix">Colour</label>
@@ -12,7 +18,7 @@
         <button @click="deleteCalendar(ix)">Delete</button>
       </div>
     </div>
-    <div id="save-options">
+    <div id="save-options" v-if="!loading">
       <button v-if="changesMade" @click="saveCalendar">
         Save
       </button>
@@ -33,12 +39,24 @@ export default {
     return {
       calendars: [],
       prevCalendars: [],
-      changesMade: false
+      changesMade: false,
+      loading: true,
+      predefinedCalendars: [
+        {
+          "name": "Google Calendar",
+          "link": "https://support.google.com/calendar/answer/37648#zippy=%2Cget-your-calendar-view-only"
+        },
+        {
+          "name": "Outlook Calendar",
+          "link": "https://outlook.live.com/owa/?path=/options/calendarpublishing"
+        },
+      ]
     }
   },
   sockets: {
     calendar_update: function (update) {
-      console.log(JSON.stringify(update));
+      this.loading = false;
+
       this.prevCalendars = update.map(c => new Object({url: c.url, colour: c.colour}));
 
       if (!this.changesMade) {
@@ -135,5 +153,28 @@ export default {
   gap: 0.3em;
 
   border-radius: 2px;
+}
+
+#pre-calendar-list a {
+  color: black;
+  text-decoration: none;
+  display: block;
+  padding: 1em;
+}
+
+#pre-calendar-list li {
+  list-style: none;
+  flex: 1;
+  background-color: #ececec;
+  border: 1px solid #9d9d9d;
+  text-align: center;
+  border-radius: 2px;
+}
+
+#pre-calendar-list {
+  margin-left: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.3em;
 }
 </style>
