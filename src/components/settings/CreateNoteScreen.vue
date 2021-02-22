@@ -166,7 +166,7 @@ export default {
 }
 
 #note {
-  background-color: yellow;
+  background-color: #ffff88;
   border-radius: 2px;
 
   height: auto;

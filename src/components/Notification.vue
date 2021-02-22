@@ -58,6 +58,8 @@ export default {
   flex-direction: column;
 
   width: 100%;
+
+  z-index: 99;
 }
 
 .notification-root {

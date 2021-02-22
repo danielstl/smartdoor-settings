@@ -8,7 +8,7 @@
         <div id="settings-form">
           <div id="wallpaper-preview">
             <div v-if="uploading" class="uploading">Uploading...</div>
-            <div v-else-if="backgroundUrl === null">No background image</div>
+            <div v-else-if="backgroundUrl === null">No wallpaper selected</div>
             <DynamicImage v-else :src="backgroundUrl"></DynamicImage>
           </div>
 
@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div>Available</div>
+        <div v-if="availableWidgets.length !== 0">Available</div>
         <div class="widgets-container">
           <div class="widget" draggable="true" @dragstart="widgetDragStart(widget.internal, ...arguments)"
                v-for="(widget, ix) in availableWidgets" :key="ix">

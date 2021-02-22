@@ -1,27 +1,43 @@
 <template>
   <div id="root">
     <Notification/>
-    <RegistrationScreen v-if="false"/>
-    <header>
-      <h2>DoorLink Management</h2>
-    </header>
-    <div id="content">
-      <nav>
-        <ul>
-          <li v-for="c in this.$router.options.routes" :key="c.path">
-            <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span
-                class="link-name">{{
-                c.name
-              }}</span>
-            </router-link>
-          </li>
-        </ul>
-      </nav>
-      <main>
-        <!--<div id="current-route"> {{ this.$router.currentRoute.name }}</div>-->
-        <router-view></router-view>
-      </main>
-    </div>
+    <RegistrationScreen v-if="registering"/>
+    <template v-else>
+      <header>
+        <div id="logo">
+          <img alt="DoorLink logo" src="https://doorlink.xyz/manage/icons/256.png"/> <span>DoorLink Management</span>
+        </div>
+        <div id="account">
+          <div id="account-name" @click="showingAccountSettings = !showingAccountSettings">{{ username }}<span
+              :class="{'material-icons': true, 'transform-animate': true, 'rotate-180': showingAccountSettings}">expand_more</span>
+          </div>
+          <transition name="fade">
+            <div id="account-settings-popup" v-if="showingAccountSettings">
+              <ul>
+                <li @click="logOut"><span class="material-icons">logout</span>Log out</li>
+              </ul>
+            </div>
+          </transition>
+        </div>
+      </header>
+      <div id="content">
+        <nav>
+          <ul>
+            <li v-for="c in this.$router.options.routes" :key="c.path">
+              <router-link class="menu-link" :to="c.path"><span class="material-icons">{{ c.meta.icon }}</span><span
+                  class="link-name">{{
+                  c.name
+                }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+        <main>
+          <!--<div id="current-route"> {{ this.$router.currentRoute.name }}</div>-->
+          <router-view></router-view>
+        </main>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -37,16 +53,54 @@ export default {
   components: {Notification, RegistrationScreen},
   //components: {DateTime},
   data() {
-    return {}
+    return {
+      registering: true,
+      showingAccountSettings: false,
+      username: ""
+    }
   },
   sockets: {
-    room_joined: function (code) {
+    room_joined(code) {
+      this.registering = false;
       this.saveRoomCode(code);
     },
-    room_id: function (code) {
+    room_id(code) {
       this.saveRoomCode(code);
     },
-    new_device_joined: function () {
+    login_success(data) {
+      console.log("Login success");
+      let sessionId = data[0];
+      let username = data[1];
+      let isRegistration = data[2];
+
+      if (this.$router.currentRoute.fullPath !== "/") {
+        this.$router.push("/");
+      }
+
+      if (!localStorage.session) {
+        let notif;
+
+        if (isRegistration) {
+          notif = {
+            header: "Registration successful",
+            caption: "Welcome to DoorLink! Customise your display settings here, and visit the Device tab to link a display device"
+          }
+        } else {
+          notif = {
+            header: "Log-in successful",
+            caption: "Welcome to DoorLink!"
+          }
+        }
+
+        this.$global.pushNotification(notif);
+      }
+
+      this.$global.username = username;
+      this.username = username;
+
+      localStorage.session = sessionId;
+    },
+    new_device_joined() {
       this.$global.pushNotification(
           {
             header: "New device",
@@ -98,15 +152,23 @@ export default {
   methods: {
     saveRoomCode(code) {
       this.$global.roomId = code;
-      localStorage.roomCode = code;
+    },
+    logOut() {
+      this.registering = true;
+      this.showingAccountSettings = false;
+      this.$socket.emit("logout", localStorage.session);
+      this.$global.username = "";
+      this.username = "";
+      delete localStorage.session;
     }
   },
   beforeMount() {
-    if (!localStorage.roomCode && localStorage.roomCode) {
+    if (localStorage.session) {
+      this.$socket.emit("login_from_session", localStorage.session);
       //TODO!!!!
-      this.$socket.emit("join_room", localStorage.roomCode);
+      //this.$socket.emit("join_room", localStorage.roomCode);
     } else {
-      this.$socket.emit("temp_join");
+      //this.$socket.emit("temp_join");
     }
   }
 }
@@ -128,7 +190,11 @@ header {
   background: #1d1d1d;
 
   color: white;
-  padding: 0.2em 1.6em;
+  height: 4em;
+  min-height: 4em;
+  padding: 0 1em;
+
+  align-items: center;
 }
 
 .menu-link > .material-icons {
@@ -138,6 +204,44 @@ header {
 #current-route {
   font-size: x-large;
   font-weight: 500;
+}
+
+#account {
+  position: relative;
+  font-weight: 500;
+}
+
+#account-settings-popup {
+  right: 0;
+  width: 10em;
+  position: absolute;
+  background-color: #ffffff;
+  color: black;
+  margin-top: 0.3em;
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 8px;
+}
+
+#account-settings-popup ul {
+  list-style: none;
+  margin: 0.2em 0;
+  padding: 0;
+}
+
+#account-settings-popup li {
+  margin: 0;
+  padding: 0.3em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#account-settings-popup li:hover {
+  background-color: #e0e0e0;
+}
+
+#account-name {
+  user-select: none;
+  cursor: pointer;
 }
 
 nav {
@@ -154,8 +258,20 @@ main {
   overflow: auto;
 }
 
-header > div {
+#logo > span {
+  font-size: x-large;
+  font-weight: 500;
+}
+
+#logo {
   flex: 1;
+  display: flex;
+}
+
+#logo > img {
+  height: 32px;
+  max-height: 32px;
+  margin-right: 0.6em;
 }
 
 #root {
@@ -169,6 +285,10 @@ header > div {
   display: flex;
 
   flex-direction: column;
+}
+
+#logo span {
+  display: none;
 }
 
 @media screen and (min-width: 600px) {
@@ -186,6 +306,10 @@ header > div {
 
     overflow: auto;
   }
+
+  #logo span {
+    display: inline-block;
+  }
 }
 
 #root > div {
@@ -193,7 +317,7 @@ header > div {
 }
 
 #root {
-  font-family: "Roboto", "Segoe UI", "sans-serif";
+  font-family: "Roboto", "Segoe UI", "Helvetica", "sans-serif";
 
   height: 100%;
 }
@@ -231,7 +355,7 @@ nav > ul {
   color: white;
 }
 
-input[type=text], select, button, input[type=submit], input[type="file"]::-webkit-file-upload-button {
+input[type=text], input[type=password], select, button, input[type=submit], input[type="file"]::-webkit-file-upload-button {
   background-color: white;
   border: 1px solid #333;
   border-radius: 2px;
@@ -260,5 +384,30 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 0.3em;
   margin-bottom: 0.3em;
   font-weight: 500;
+}
+
+.material-icons {
+  user-select: none;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.2s ease-out;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+.fade-enter-to {
+  opacity: 1;
+}
+
+.transform-animate {
+  transition: transform 0.2s ease-in-out;
+}
+
+.rotate-180 {
+  transform: scale(-1);
 }
 </style>

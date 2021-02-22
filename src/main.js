@@ -43,7 +43,8 @@ const router = new VueRouter({
 });
 
 Vue.prototype.$global = {
-    messages: []
+    messages: [],
+    username: ""
 };
 
 new Vue({

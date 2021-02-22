@@ -2,7 +2,7 @@
   <div id="calendar-root">
     <h3>Calendar integrations</h3>
     <div class="context">
-      You can link your calendars by providing iCalendar links.<br>
+      You can link your calendars by providing iCalendar links. Check with your calendar provider to determine how to find a link.<br>
       <ul id="pre-calendar-list">
         <li v-for="ca in predefinedCalendars" :key="ca.name"><a :href="ca.link" target="_blank">{{ca.name}}</a></li>
       </ul>

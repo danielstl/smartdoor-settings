@@ -2,17 +2,17 @@
   <div id="device-root">
     <h3>Device</h3>
     <h4>Door ID</h4>
-    <div class="context">Use this to pair a new display. At any time, you can reset the Door ID, which will disconnect all connected
-      displays.
+    <div class="context">Use this to pair a new display. At any time, you can reset the Door ID, which will disconnect
+      all connected displays.
     </div>
     <template v-if="!retrievedRoomId">
       <div>Loading...</div>
     </template>
     <template v-else>
       <div>Door ID: {{ roomId }}</div>
-      <button @click="resetDoorId">Reset Door ID</button>
+      <button id="reset-button" @click="resetDoorId">Reset Door ID</button>
 
-      <qrcode-vue v-if="retrievedRoomId" :value="roomId"></qrcode-vue>
+      <qrcode-vue id="qr-code" size="130" :value="roomId"></qrcode-vue>
     </template>
   </div>
 </template>
@@ -49,5 +49,7 @@ export default {
 </script>
 
 <style scoped>
-
+#reset-button {
+  margin: 1em 0;
+}
 </style>
