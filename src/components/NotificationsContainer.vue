@@ -5,7 +5,7 @@
         <span class="material-icons">notification_important</span>
         <div class="notification-content">
           <div class="notification-header">{{ notif.header }}</div>
-          <div class="notification-body">{{ notif.caption }}</div>
+          <div class="notification-body" v-if="notif.caption">{{ notif.caption }}</div>
         </div>
       </div>
     </transition-group>
@@ -14,7 +14,7 @@
 
 <script>
 export default {
-  name: "Notification",
+  name: "NotificationsContainer",
   data() {
     return {
       notifications: [
@@ -26,10 +26,10 @@ export default {
     this.$global.pushNotification = this.pushNotification;
   },
   methods: {
-    scheduleRemoval(notification) {
+    scheduleRemoval(notification, timeout) {
       setTimeout(() => {
         this.removeNotification(notification);
-      }, 5000);
+      }, timeout);
     },
     removeNotification(notification) {
       this.notifications.splice(this.notifications.indexOf(notification), 1);
@@ -39,10 +39,12 @@ export default {
         notification.id = Math.random().toString();
       }
       this.notifications.push(notification);
-      this.scheduleRemoval(notification);
+      this.scheduleRemoval(notification, notification.displayTime || 5000);
     },
     handleClick(notification) {
-      notification.clickHandler();
+      if (notification.clickHandler) {
+        notification.clickHandler();
+      }
       this.removeNotification(notification);
     }
   }

@@ -32,7 +32,7 @@ export default {
       this.doodles = doodles ? doodles : [];
     }
   },
-  mounted() {
+  beforeMount() {
     this.$socket.emit("get_doodles");
   },
   methods: {

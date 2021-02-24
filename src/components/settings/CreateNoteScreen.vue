@@ -191,7 +191,7 @@ export default {
   height: 100%;
   resize: none;
   outline: none;
-  font-family: "Roboto", "Segoe UI", "sans-serif";
+  font-family: "Roboto", "Segoe UI", "Helvetica", "sans-serif";
 }
 
 #save-options {

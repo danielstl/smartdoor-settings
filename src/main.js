@@ -44,7 +44,8 @@ const router = new VueRouter({
 
 Vue.prototype.$global = {
     messages: [],
-    username: ""
+    username: "",
+    callRequestId: null
 };
 
 new Vue({

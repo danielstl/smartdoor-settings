@@ -58,12 +58,9 @@ export default {
   },
   methods: {
     draw: function (e) { //setPosition
-      //alert("draw " + JSON.stringify(e));
       this.pos = [(e.touches ? e.touches[0].clientX : e.clientX) - this.canvas.offsetLeft, (e.touches ? e.touches[0].clientY : e.clientY) - this.canvas.offsetTop];
     },
     resize() {
-      console.log("resize");
-
       this.canvas.width = this.canvas.offsetWidth;
       this.canvas.height = this.canvas.offsetHeight;
 
@@ -73,12 +70,8 @@ export default {
       this.canvas.height = rect.height * devicePixelRatio;
 
       this.context.scale(devicePixelRatio, devicePixelRatio);
-
-      //this.canvas.style.width = rect.width + 'px';
-      //this.canvas.style.height = rect.height + 'px';
     },
     moveDraw: function (e) { //draw
-      //alert("move" + JSON.stringify(e));
       if (e.buttons !== undefined && e.buttons !== 1 || this.uploading || this.recentlySent) return;
 
       let ctx = this.context;

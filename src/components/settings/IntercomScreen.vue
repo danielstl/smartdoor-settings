@@ -1,6 +1,5 @@
 <template>
   <div id="intercom-root">
-    <Modal v-if="false"/>
     <h3>Intercom</h3>
     <div class="context">When a user uses the Intercom feature on the display, incoming call requests will be displayed
       here.
@@ -36,11 +35,8 @@
 </template>
 
 <script>
-import Modal from "@/components/Modal";
-
 export default {
   name: "IntercomScreen",
-  components: {Modal},
   data() {
     return {
       callInProgress: false,
@@ -63,16 +59,31 @@ export default {
 
     console.log(this.rtc);
 
+    this.callRequestId = this.$global.callRequestId;
+
     this.rtc.onaddstream = this.onAddStream;
 
+  },
+  watch: {
+    callRequestId(value) {
+      this.$global.callRequestId = value;
+    }
   },
   sockets: {
     intercom_call_request(id) {
       if (this.callRequestId === null) { //if we're not already in a call
         this.callRequestId = id;
-        navigator.vibrate([1000, 1000, 1000, 1000, 1000, 1000]);
-      } else {
-        //this.$socket.emit("decline_call_request", id);
+
+        setTimeout(() => { //clear call request ID after 30s
+          if (this.callRequestId === id) {
+            this.callRequestId = null;
+          }
+        }, 30 * 1000);
+      }
+    },
+    cancel_call_request(id) {
+      if (this.callRequestId === id) {
+        this.callRequestId = null;
       }
     },
     async intercom_call_signalling(data) {
@@ -132,7 +143,16 @@ export default {
         });
       }
 
-      document.getElementById("cam-feed").srcObject = null;
+      document.exitFullscreen();
+      this.fullscreen = false;
+
+      let camObj = document.getElementById("cam-feed");
+
+      if (camObj.srcObject) {
+        camObj.srcObject.end();
+        camObj.srcObject = null;
+      }
+
       document.getElementById("received-cam-feed").srcObject = null;
     },
     attachMediaStream(stream) {
@@ -223,15 +243,30 @@ video {
 }
 
 #call-request {
-  background-color: green;
   border-radius: 2px;
   display: flex;
-  padding: 0.3em;
+  padding: 0.6em;
 
   color: white;
   align-items: center;
 
   max-width: 450px;
+
+  animation: call-pulse 2s infinite;
+}
+
+@keyframes call-pulse {
+  0% {
+    background-color: green;
+  }
+
+  50% {
+    background-color: #00b001;
+  }
+
+  100% {
+    background-color: green;
+  }
 }
 
 #call-responses {

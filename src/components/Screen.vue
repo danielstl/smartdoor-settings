@@ -1,6 +1,6 @@
 <template>
   <div id="root">
-    <Notification/>
+    <NotificationsContainer/>
     <RegistrationScreen v-if="registering"/>
     <template v-else>
       <header>
@@ -46,11 +46,11 @@
 //import DateTime from "@/components/DateTime";
 
 import RegistrationScreen from "@/components/registration/RegistrationScreen";
-import Notification from "@/components/Notification";
+import NotificationsContainer from "@/components/NotificationsContainer";
 
 export default {
   name: "Screen",
-  components: {Notification, RegistrationScreen},
+  components: {NotificationsContainer, RegistrationScreen},
   //components: {DateTime},
   data() {
     return {
@@ -60,6 +60,21 @@ export default {
     }
   },
   sockets: {
+    disconnect(reason) {
+      if (reason === 'io server disconnect') {
+        this.$socket.connect();
+      }
+
+      if (!this.registering) {
+        this.$global.pushNotification({header: "Disconnected from server", caption: "Attempting to reconnect..."});
+      }
+    },
+    connect() {
+      if (!this.registering) {
+        this.registering = true;
+        this.attemptLoginFromStorage();
+      }
+    },
     room_joined(code) {
       this.registering = false;
       this.saveRoomCode(code);
@@ -73,10 +88,6 @@ export default {
       let username = data[1];
       let isRegistration = data[2];
 
-      if (this.$router.currentRoute.fullPath !== "/") {
-        this.$router.push("/");
-      }
-
       if (!localStorage.session) {
         let notif;
 
@@ -84,6 +95,10 @@ export default {
           notif = {
             header: "Registration successful",
             caption: "Welcome to DoorLink! Customise your display settings here, and visit the Device tab to link a display device"
+          }
+        } else if (this.username) {
+          notif = {
+            header: "Reconnected to server"
           }
         } else {
           notif = {
@@ -125,6 +140,40 @@ export default {
           }
       );
     },
+    intercom_call_request(id) {
+      if (this.$global.callRequestId === null) { //if we're not already in a call
+        this.$global.callRequestId = id;
+        navigator.vibrate([1000, 1000, 1000, 1000, 1000, 1000]);
+
+        if (this.$router.currentRoute.name === "Intercom") {
+          return;
+        }
+
+        const ctx = this;
+
+        this.$global.pushNotification(
+            {
+              header: "Intercom Call Incoming",
+              caption: "Press here to switch to the intercom page",
+              displayTime: 10000,
+              clickHandler: function () {
+                ctx.$router.push("/intercom");
+              }
+            }
+        );
+
+        setTimeout(() => { //clear call request ID after 30s
+          if (this.$global.callRequestId === id) {
+            this.$global.callRequestId = null;
+          }
+        }, 30 * 1000);
+      }
+    },
+    cancel_call_request(id) {
+      if (this.$global.callRequestId === id) {
+        this.$global.callRequestId = null;
+      }
+    },
     new_message: function (messageData) {
       if (this.$router.currentRoute.name === "Messaging") {
         return;
@@ -132,7 +181,7 @@ export default {
 
       this.$global.messages.push(messageData);
 
-      if (!messageData.fromSystem && messageData.fromSystem) { //TODO re-add
+      if (messageData.fromSystem) {
         return;
       }
 
@@ -160,16 +209,15 @@ export default {
       this.$global.username = "";
       this.username = "";
       delete localStorage.session;
+    },
+    attemptLoginFromStorage() {
+      if (localStorage.session) {
+        this.$socket.emit("login_from_session", localStorage.session);
+      }
     }
   },
   beforeMount() {
-    if (localStorage.session) {
-      this.$socket.emit("login_from_session", localStorage.session);
-      //TODO!!!!
-      //this.$socket.emit("join_room", localStorage.roomCode);
-    } else {
-      //this.$socket.emit("temp_join");
-    }
+    this.attemptLoginFromStorage();
   }
 }
 </script>
@@ -361,7 +409,7 @@ input[type=text], input[type=password], select, button, input[type=submit], inpu
   border-radius: 2px;
   padding: 0.4em;
   color: black;
-  font-family: "Roboto", "Segoe UI", "sans-serif";
+  font-family: "Roboto", "Segoe UI", "Helvetica", "sans-serif";
 }
 
 input, select, button :active {
