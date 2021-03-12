@@ -26,7 +26,7 @@
         </div>
       </div>
       <div id="call-controls" v-if="callInProgress">
-        <button id="end-call-button" @click="endCall">End call</button>
+        <button id="end-call-button" @click="endCall()">End call</button>
         <button id="fullscreen-button" @click="enterFullscreen">{{ fullscreen ? "Exit fullscreen" : "Fullscreen" }}
         </button>
       </div>
@@ -91,7 +91,7 @@ export default {
         return;
       }
 
-      console.log("recieved signal", data);
+      console.log("received signal", data);
       if (data.message === "candidate") {
         await this.rtc.addIceCandidate(new RTCIceCandidate(data.candidate));
 
@@ -136,24 +136,33 @@ export default {
 
         this.callInProgress = false;
         this.callRequestId = null;
+        this.$global.callRequestId = null;
 
         this.$global.pushNotification({
           header: "Intercom",
           caption: "Call has been ended"
         });
+
+        this.$router.push("/");
       }
 
-      document.exitFullscreen();
+      if (document.fullscreenElement !== null) {
+        document.exitFullscreen();
+      }
+
       this.fullscreen = false;
 
       let camObj = document.getElementById("cam-feed");
 
-      if (camObj.srcObject) {
-        camObj.srcObject.end();
+      if (camObj && camObj.srcObject) {
         camObj.srcObject = null;
       }
 
-      document.getElementById("received-cam-feed").srcObject = null;
+      let recCamObj = document.getElementById("received-cam-feed");
+
+      if (recCamObj) {
+        recCamObj.srcObject = null;
+      }
     },
     attachMediaStream(stream) {
       let camFeed = document.getElementById("received-cam-feed");

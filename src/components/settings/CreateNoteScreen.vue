@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     save() {
-      if (this.creatingDoodle) {
+      if (this.creatingDoodle && this.$refs.doodle) {
         this.$refs.doodle.send();
         return;
       }
@@ -84,7 +84,7 @@ export default {
             .then(res => res.json())
             .then(res => this.note.image = res.url)
             .catch(ex => alert("Error uploading file: " + ex.message))
-            .finally(() => this.uploading = false);
+            .finally(() => this.uploading = this.creatingDoodle = false);
 
         //alert(file);
       };

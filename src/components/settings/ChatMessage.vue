@@ -2,7 +2,7 @@
   <div :class="{message: true, 'self-message': message.fromSystem}">
     <div class="message-timestamp">{{formattedTime}}</div>
     <div>
-      <div class="message-author">{{ message.fromSystem ? "owner" : "you" }}</div>
+      <div class="message-author">{{ message.fromSystem ? "you" : "visitor" }}</div>
       <div class="message-content">{{message.content}}</div>
     </div>
   </div>
